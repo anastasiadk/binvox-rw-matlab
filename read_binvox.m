@@ -1,4 +1,4 @@
-function [ vol ] = read_binvox( binvox_filename, do_visualize )
+function [ vol, t, s ] = read_binvox( binvox_filename, do_visualize )
 % READ_BINVOX Read binvox file contents and convert to 3D binary voxel occupancy array
 % Input
 %   binvox_filename - name of .binvox file
@@ -6,6 +6,10 @@ function [ vol ] = read_binvox( binvox_filename, do_visualize )
 %   'visualize_voxels' function
 % Output
 %   vol - 3D binary voxel occupancy array
+%   t - translation of the center of the volume to world coordinate system 
+%   s - scaling of the volume to world coordinate system 
+%   (to better understand the meaning of t and s - see
+%   http://www.patrickmin.com/binvox/binvox.html)
 %
 % Copyright (c) 2017 Anastasia Dubrovina. All rights reserved.
 
@@ -19,8 +23,10 @@ fid = fopen(binvox_filename);
 fgetl(fid); % '#binvox 1'
 l = fgetl(fid); % e.g. 'dim 64 64 64'
 dims = sscanf(l, 'dim %d %d %d');
-fgetl(fid); % e.g. 'translate -1.74325 -0.929973 -1.21382'
-fgetl(fid); % e.g. 'scale 3.48649'
+l = fgetl(fid); % e.g. 'translate -1.74325 -0.929973 -1.21382'
+t = sscanf(l, 'translate %f %f %f');
+l = fgetl(fid); % e.g. 'scale 3.48649'
+s = sscanf(l, 'scale %f');
 fgetl(fid); % 'data'
 data = fread(fid);
 fclose(fid);
@@ -39,7 +45,7 @@ vol = permute(vol,[3 1 2]); %[y x z]
 
 % visualize
 if (do_visualize)
-    figure; visualize_voxels(vol); axis([0 dims(1) 0 dims(2) 0 dims(3)]); cameratoolbar;
+    figure; visualize_voxels(vol); axis([0 dims(1)+1 0 dims(2)+1 0 dims(3)+1]); cameratoolbar;
 end
 
 end
