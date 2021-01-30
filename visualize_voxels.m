@@ -25,14 +25,14 @@ cube_tri = [1 2 3;
             5 8 6;
             5 7 8];
 
-V = [];
-TRI = [];
+V = zeros(8*length(X), 3);
+TRI = zeros(12*length(X), 3);
 
 % For each voxel center (X(k),Y(k),Z(k)), create a 1x1x1 meshed cube around it 
 for k = 1:length(X)
     V_k = bsxfun(@plus,cube_verts,[X(k),Y(k),Z(k)]-0.5);
-    V = [V; V_k];
-    TRI = [TRI; cube_tri+8*(k-1)];
+    V(8*(k-1)+1 : 8*k, :) = V_k;
+    TRI(12*(k-1)+1 : 12*k, :) = cube_tri+8*(k-1);
 end
 
 % figure;
